@@ -1,27 +1,59 @@
-name: Build
+name: Python SonarQube Analysis
 
 on:
   push:
     branches:
       - main
 
-
 jobs:
   build:
-    name: Build
+    name: SonarQube Analysis
     runs-on: ubuntu-latest
-    permissions: read-all
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+
     steps:
-      - uses: actions/checkout@v2
+      # Step 1: Checkout the Repository
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      # Step 2: Set Up Python Environment
+      - name: Set Up Python
+        uses: actions/setup-python@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: sonarsource/sonarqube-scan-action@master
+          python-version: "3.x"  # Use the desired Python version
+
+      # Step 3: Install Dependencies
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # Step 4: Run Tests and Generate Coverage Report (Optional)
+      - name: Run Tests with Coverage
+        run: |
+          pip install pytest pytest-cov
+          pytest --cov=. --cov-report=xml
+
+      # Step 5: SonarQube Scan
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      # If you wish to fail your job when the Quality Gate is red, uncomment the
-      # following lines. This would typically be used to fail a deployment.
-      # - uses: sonarsource/sonarqube-quality-gate-action@master
-      #   timeout-minutes: 5
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=my-python-project
+            -Dsonar.python.coverage.reportPaths=coverage.xml
+            -Dsonar.sources=.
+            -Dsonar.language=python
+
+      # Step 6: Enforce Quality Gate (Optional)
+      - name: SonarQube Quality Gate
+        if: always()
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
