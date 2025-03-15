@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Server Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
+
+    <!-- Background Video -->
+    <video class="absolute top-0 left-0 w-full h-full object-cover" autoplay loop muted>
+        <source src="{{ url_for('static', filename='animation1.mp4') }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <!-- OTP Form Container -->
+    <div class="w-full max-w-md bg-gray-800 bg-opacity-75 backdrop-blur-md p-8 rounded-xl shadow-2xl relative z-10">
+        <h2 class="text-3xl md:text-4xl text-purple-400 font-serif text-center mb-8">Cloud Server Login</h2>
+
+        <!-- OTP Form -->
+        <form method="POST" class="space-y-6" onsubmit="combineOTP(event)">
+            <div>
+                <label for="otp" class="block text-blue-300 font-medium mb-2 text-center">Enter 6-Digit OTP</label>
+                <div class="flex justify-center space-x-2">
+                    <input type="text" maxlength="1" name="otp1" id="otp1" required pattern="\d" 
+                           class="otp-box w-12 p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-center 
+                           focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 
+                           hover:shadow-[0_0_12px_rgba(159,122,234,0.5)] transition-all duration-300">
+                    <input type="text" maxlength="1" name="otp2" id="otp2" required pattern="\d" 
+                           class="otp-box w-12 p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-center 
+                           focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 
+                           hover:shadow-[0_0_12px_rgba(159,122,234,0.5)] transition-all duration-300">
+                    <input type="text" maxlength="1" name="otp3" id="otp3" required pattern="\d" 
+                           class="otp-box w-12 p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-center 
+                           focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 
+                           hover:shadow-[0_0_12px_rgba(159,122,234,0.5)] transition-all duration-300">
+                    <input type="text" maxlength="1" name="otp4" id="otp4" required pattern="\d" 
+                           class="otp-box w-12 p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-center 
+                           focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 
+                           hover:shadow-[0_0_12px_rgba(159,122,234,0.5)] transition-all duration-300">
+                    <input type="text" maxlength="1" name="otp5" id="otp5" required pattern="\d" 
+                           class="otp-box w-12 p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-center 
+                           focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 
+                           hover:shadow-[0_0_12px_rgba(159,122,234,0.5)] transition-all duration-300">
+                    <input type="text" maxlength="1" name="otp6" id="otp6" required pattern="\d" 
+                           class="otp-box w-12 p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-center 
+                           focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 
+                           hover:shadow-[0_0_12px_rgba(159,122,234,0.5)] transition-all duration-300">
+                </div>
+                <input type="hidden" name="otp" id="combined-otp">
+            </div>
+
+            <button type="submit" 
+                    class="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold text-lg 
+                    hover:bg-purple-700 hover:shadow-[0_0_15px_rgba(159,122,234,0.7)] transition-all duration-300 shadow-md">
+                Login
+            </button>
+        </form>
+    </div>
+
+    <!-- JavaScript for OTP Handling -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const otpInputs = document.querySelectorAll('.otp-box');
+            otpInputs.forEach((input, index) => {
+                input.addEventListener('input', function(e) {
+                    if (e.target.value.length === 1 && index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    }
+                });
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                        otpInputs[index - 1].focus();
+                    }
+                });
+            });
+        });
+
+        function combineOTP(event) {
+            event.preventDefault();
+            const otpInputs = document.querySelectorAll('.otp-box');
+            let otpValue = '';
+            otpInputs.forEach(input => otpValue += input.value);
+
+            if (otpValue.length === 6 && /^\d{6}$/.test(otpValue)) {
+                document.getElementById('combined-otp').value = otpValue;
+                event.target.submit();
+            } else {
+                otpInputs.forEach(box => {
+                    box.classList.add('border-red-500', 'shadow-[0_0_12px_rgba(239,68,68,0.7)]');
+                });
+                setTimeout(() => {
+                    otpInputs.forEach(box => {
+                        box.classList.remove('border-red-500', 'shadow-[0_0_12px_rgba(239,68,68,0.7)]');
+                        box.value = '';
+                    });
+                }, 2000);
+            }
+        }
+    </script>
+</body>
+</html>

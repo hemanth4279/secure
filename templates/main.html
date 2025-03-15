@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page - Healthcare Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom 3D animation for buttons */
+        .btn-3d {
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+        }
+
+        .btn-3d:hover {
+            transform: translateY(-5px) rotateX(10deg) rotateY(10deg);
+            box-shadow: 0 15px 30px rgba(159, 122, 234, 0.5);
+        }
+
+        .btn-3d:active {
+            transform: translateY(2px) rotateX(0deg) rotateY(0deg);
+            box-shadow: 0 5px 15px rgba(159, 122, 234, 0.3);
+        }
+
+        /* Video Overlay */
+        .video-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        /* Transparent Middle Section */
+        .transparent-bg {
+            background: rgba(31, 41, 55, 0.7);
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
+    <!-- Video Background -->
+    <video class="video-bg" autoplay loop muted>
+        <source src="{{ url_for('static', filename='animation.mp4') }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <!-- Main Content -->
+    <div class="w-full max-w-5xl transparent-bg p-8 rounded-xl shadow-2xl">
+        <h1 class="text-4xl md:text-5xl text-purple-400 font-serif text-center mb-12">Healthcare Portal</h1>
+
+        <!-- Redirection Buttons -->
+        <div class="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Cloud Server Button -->
+            <a href="/cloud_login" class="flex-1">
+                <div class="btn-3d bg-purple-700 text-white p-6 rounded-lg shadow-lg hover:bg-purple-800 
+                            transition-all duration-300 cursor-pointer">
+                    <h2 class="text-xl font-semibold mb-2">Cloud Server</h2>
+                    <p class="text-sm text-gray-300 mb-4">Securely manage healthcare data.</p>
+                    <button class="w-full bg-purple-600 py-2 px-4 rounded-md font-medium text-white 
+                                   hover:bg-purple-500 transition-all duration-300">
+                        Access Now
+                    </button>
+                </div>
+            </a>
+
+            <!-- Doctor Button -->
+            <a href="/doctor_login" class="flex-1">
+                <div class="btn-3d bg-purple-700 text-white p-6 rounded-lg shadow-lg hover:bg-purple-800 
+                            transition-all duration-300 cursor-pointer">
+                    <h2 class="text-xl font-semibold mb-2">Doctor</h2>
+                    <p class="text-sm text-gray-300 mb-4">View patient records and manage appointments.</p>
+                    <button class="w-full bg-purple-600 py-2 px-4 rounded-md font-medium text-white 
+                                   hover:bg-purple-500 transition-all duration-300">
+                        Enter Portal
+                    </button>
+                </div>
+            </a>
+
+            <!-- Patient Button -->
+            <a href="/login" class="flex-1">
+                <div class="btn-3d bg-purple-700 text-white p-6 rounded-lg shadow-lg hover:bg-purple-800 
+                            transition-all duration-300 cursor-pointer">
+                    <h2 class="text-xl font-semibold mb-2">Patient</h2>
+                    <p class="text-sm text-gray-300 mb-4">Check health records and book appointments.</p>
+                    <button class="w-full bg-purple-600 py-2 px-4 rounded-md font-medium text-white 
+                                   hover:bg-purple-500 transition-all duration-300">
+                        Log In
+                    </button>
+                </div>
+            </a>
+
+            <!-- Pharmacy Button -->
+            <a href="/pharmacy_login" class="flex-1">
+                <div class="btn-3d bg-purple-700 text-white p-6 rounded-lg shadow-lg hover:bg-purple-800 
+                            transition-all duration-300 cursor-pointer">
+                    <h2 class="text-xl font-semibold mb-2">Pharmacy</h2>
+                    <p class="text-sm text-gray-300 mb-4">Order prescriptions and manage medications.</p>
+                    <button class="w-full bg-purple-600 py-2 px-4 rounded-md font-medium text-white 
+                                   hover:bg-purple-500 transition-all duration-300">
+                        Visit Pharmacy
+                    </button>
+                </div>
+            </a>
+        </div>
+    </div>
+
+</body>
+
+</html>

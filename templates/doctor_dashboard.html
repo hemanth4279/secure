@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes glow {
+            0% { text-shadow: 0 0 5px rgba(147, 51, 234, 0.5); }
+            50% { text-shadow: 0 0 15px rgba(147, 51, 234, 0.8), 0 0 25px rgba(147, 51, 234, 0.6); }
+            100% { text-shadow: 0 0 5px rgba(147, 51, 234, 0.5); }
+        }
+        
+        .nav-link:hover {
+            animation: glow 1.5s infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @media (max-width: 640px) {
+            .responsive-table tbody tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid #4b5563;
+                border-radius: 0.5rem;
+            }
+            .responsive-table td {
+                display: block;
+                padding: 0.75rem;
+            }
+            .responsive-table td:before {
+                content: attr(data-label);
+                font-weight: bold;
+                display: block;
+                color: #93c5fd;
+                margin-bottom: 0.25rem;
+            }
+            .responsive-table thead {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <nav class="bg-gray-800 p-4 flex flex-wrap justify-between items-center shadow-lg sticky top-0 z-10">
+        <div class="flex flex-wrap space-x-4">
+            <a href="#doctor-info" class="nav-link text-blue-300 hover:text-purple-400 transition-colors duration-300 font-semibold">Home</a>
+            <a href="#patients-details" class="nav-link text-blue-300 hover:text-purple-400 transition-colors duration-300 font-semibold">Patients Details</a>
+            <a href="#search-patients" class="nav-link text-blue-300 hover:text-purple-400 transition-colors duration-300 font-semibold">Search Patients</a>
+            <a href="#requested-patients" class="nav-link text-blue-300 hover:text-purple-400 transition-colors duration-300 font-semibold">Requested Patients</a>
+            <a href="#shared-patients" class="nav-link text-blue-300 hover:text-purple-400 transition-colors duration-300 font-semibold">Shared Patients</a>
+            <a href="#request-patient-data" class="nav-link text-blue-300 hover:text-purple-400 transition-colors duration-300 font-semibold">Request Patient Data</a>
+            <a href="#view-patient-report" class="nav-link text-blue-300 hover:text-purple-400 transition-colors duration-300 font-semibold">View Report</a>
+            <a href="#view-appointments" class="nav-link text-blue-300 hover:text-purple-400 transition-colors duration-300 font-semibold">View Appointments</a>
+            <a href="#create-prescription" class="nav-link text-blue-300 hover:text-purple-400 transition-colors duration-300 font-semibold">Create Prescription</a>
+            <a href="#prescriptions" class="nav-link text-blue-300 hover:text-purple-400 transition-colors duration-300 font-semibold">Prescriptions</a>
+        </div>
+        <a href="{{ url_for('doctor.doctor_logout') }}" class="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600 transition duration-300 mt-2 md:mt-0">Logout</a>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        
+        <!-- Doctor Info Section -->
+        <section id="doctor-info" class="mb-12">
+            <h2 class="text-2xl font-bold text-purple-400 font-serif mb-4 fade-in">Welcome, Dr. {{ doctor.name }}</h2>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="p-4 mb-6 rounded-lg text-center font-medium fade-in
+                            {% if category == 'success' %} bg-green-900/80 text-green-200 border border-green-700 {% endif %}
+                            {% if category == 'info' %} bg-blue-900/80 text-blue-200 border border-blue-700 {% endif %}
+                            {% if category == 'danger' %} bg-red-900/80 text-red-200 border border-red-700 {% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="bg-gray-800 p-6 rounded-lg shadow-xl fade-in">
+                <p class="text-gray-300"><strong>Doctor ID:</strong> {{ doctor.doctor_id }}</p>
+                <p class="text-gray-300"><strong>Email:</strong> {{ doctor.email }}</p>
+                <p class="text-gray-300"><strong>Phone:</strong> {{ doctor.phone }}</p>
+                <p class="text-gray-300"><strong>Specialization:</strong> {{ doctor.specialization }}</p>
+            </div>
+        </section>
+
+        <!-- Patients Details Section -->
+        <section id="patients-details" class="mb-12">
+            <h3 class="text-xl font-bold text-purple-400 font-serif mb-4 fade-in">Patients Details</h3>
+            <div class="overflow-x-auto fade-in">
+                <table class="w-full bg-gray-800 shadow-xl rounded-lg responsive-table">
+                    <thead class="bg-gray-700">
+                        <tr>
+                            <th class="p-3 text-left text-blue-300">Patient ID</th>
+                            <th class="p-3 text-left text-blue-300">Name</th>
+                            <th class="p-3 text-left text-blue-300">Contact</th>
+                            <th class="p-3 text-left text-blue-300">DOB</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if patients %}
+                            {% for patient in patients %}
+                                <tr class="border-b border-gray-700 hover:bg-gray-700 transition-colors duration-200">
+                                    <td class="p-3" data-label="Patient ID">{{ patient.patient_id }}</td>
+                                    <td class="p-3" data-label="Name">{{ patient.name }}</td>
+                                    <td class="p-3" data-label="Contact">{{ patient.contact or 'N/A' }}</td>
+                                    <td class="p-3" data-label="DOB">{{ patient.dob or 'N/A' }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="p-3 text-center">No patients found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Search Patients Placeholder -->
+        <section id="search-patients" class="mb-12">
+            <h3 class="text-xl font-bold text-purple-400 font-serif mb-4 fade-in">Search Patients</h3>
+            <div class="bg-gray-800 p-6 rounded-lg shadow-xl fade-in">
+                <p class="text-gray-300">Search functionality to be implemented</p>
+            </div>
+        </section>
+
+        <!-- Requested Patients Section -->
+        <section id="requested-patients" class="mb-12">
+            <h3 class="text-xl font-bold text-purple-400 font-serif mb-4 fade-in">Requested Patients</h3>
+            <div class="overflow-x-auto fade-in">
+                <table class="w-full bg-gray-800 shadow-xl rounded-lg responsive-table">
+                    <thead class="bg-gray-700">
+                        <tr>
+                            <th class="p-3 text-left text-blue-300">Patient ID</th>
+                            <th class="p-3 text-left text-blue-300">Patient Name</th>
+                            <th class="p-3 text-left text-blue-300">Status</th>
+                            <th class="p-3 text-left text-blue-300">Decryption Key</th>
+                            <th class="p-3 text-left text-blue-300">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if requests %}
+                            {% for request in requests %}
+                                <tr class="border-b border-gray-700 hover:bg-gray-700 transition-colors duration-200">
+                                    <td class="p-3" data-label="Patient ID">{{ request.patient_id }}</td>
+                                    <td class="p-3" data-label="Patient Name">{{ request.patient_name }}</td>
+                                    <td class="p-3" data-label="Status">
+                                        <span class="inline-block px-2 py-1 rounded-full text-sm font-bold
+                                            {% if request.status == 'accepted' %}bg-green-900 text-green-400{% endif %}
+                                            {% if request.status == 'rejected' %}bg-red-900 text-red-400{% endif %}
+                                            {% if request.status == 'pending' %}bg-yellow-900 text-yellow-400{% endif %}">
+                                            {{ request.status|capitalize }}
+                                        </span>
+                                    </td>
+                                    <td class="p-3 break-all" data-label="Decryption Key">
+                                        {{ request.decryption_key[:50] + '...' if request.decryption_key else 'N/A' }}
+                                    </td>
+                                    <td class="p-3" data-label="Action">
+                                        {% if request.decryption_key %}
+                                            <button onclick="copyToClipboard('{{ request.decryption_key }}')" 
+                                                    class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 transition duration-300">
+                                                Copy
+                                            </button>
+                                        {% else %}
+                                            <span class="text-gray-500">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="p-3 text-center">No requests found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Shared Patients Placeholder -->
+        <section id="shared-patients" class="mb-12">
+            <h3 class="text-xl font-bold text-purple-400 font-serif mb-4 fade-in">Shared Patients</h3>
+            <div class="bg-gray-800 p-6 rounded-lg shadow-xl fade-in">
+                <p class="text-gray-300">Shared patients list to be implemented</p>
+            </div>
+        </section>
+
+        <!-- Request Patient Data Section -->
+        <section id="request-patient-data" class="mb-12">
+            <h3 class="text-xl font-bold text-purple-400 font-serif mb-4 fade-in">Request Patient Data Access</h3>
+            <div class="bg-gray-800 p-6 rounded-lg shadow-xl fade-in">
+                <form method="POST" class="space-y-4">
+                    <input type="hidden" name="action" value="request_access">
+                    <div>
+                        <label class="block text-gray-300 mb-2">Select Patient</label>
+                        <select name="patient_id" class="w-full p-2 bg-gray-600 border border-gray-500 rounded-lg text-gray-100 focus:outline-none focus:border-purple-500">
+                            <option value="">-- Select Patient --</option>
+                            {% for patient in all_patients %}
+                                <option value="{{ patient.patient_id }}">{{ patient.name }} ({{ patient.patient_id }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 hover:shadow-[0_0_10px_rgba(147,51,234,0.5)] transition-all duration-300">
+                        Request Access
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- View Patient Report Section -->
+        <section id="view-patient-report" class="mb-12">
+            <h3 class="text-xl font-bold text-purple-400 font-serif mb-4 fade-in">View Patient Report</h3>
+            <div class="bg-gray-800 p-6 rounded-lg shadow-xl fade-in">
+                <form method="POST" class="space-y-4">
+                    <input type="hidden" name="action" value="view_report">
+                    <div>
+                        <label class="block text-gray-300 mb-2">Enter Decryption Key</label>
+                        <input type="text" name="decryption_key" placeholder="Paste your decryption key here" 
+                               class="w-full p-2 bg-gray-600 border border-gray-500 rounded-lg text-gray-100 focus:outline-none focus:border-purple-500">
+                    </div>
+                    <button type="submit" class="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 hover:shadow-[0_0_10px_rgba(147,51,234,0.5)] transition-all duration-300">
+                        View Report
+                    </button>
+                </form>
+                {% if report %}
+                    <div class="mt-6">
+                        <h4 class="text-lg text-blue-300 mb-2">Patient Report for {{ report.patient_name }} ({{ report.patient_id }})</h4>
+                        <div class="bg-gray-700 p-4 rounded-lg">
+                            <p class="text-gray-300"><strong>Blood Group:</strong> {{ report.blood_group or 'N/A' }}</p>
+                            <p class="text-gray-300"><strong>Blood Pressure:</strong> {{ report.blood_pressure or 'N/A' }}</p>
+                            <p class="text-gray-300"><strong>Body Temperature:</strong> {{ report.body_temp or 'N/A' }}</p>
+                            <p class="text-gray-300"><strong>Pulse Rate:</strong> {{ report.pulse_rate or 'N/A' }}</p>
+                            <p class="text-gray-300"><strong>Previous Medications:</strong> {{ report.previous_medications or 'N/A' }}</p>
+                            <p class="text-gray-300"><strong>Last Updated:</strong> {{ report.updated_time or 'N/A' }}</p>
+                            <p class="text-gray-300"><strong>Encrypted Data:</strong> {{ report.encrypted_data[:50] + '...' if report.encrypted_data else 'N/A' }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- View Appointments Section -->
+        <section id="view-appointments" class="mb-12">
+            <h3 class="text-xl font-bold text-purple-400 font-serif mb-4 fade-in">Your Appointments</h3>
+            <div class="overflow-x-auto fade-in">
+                <table class="w-full bg-gray-800 shadow-xl rounded-lg responsive-table">
+                    <thead class="bg-gray-700">
+                        <tr>
+                            <th class="p-3 text-left text-blue-300">Appointment ID</th>
+                            <th class="p-3 text-left text-blue-300">Patient Name</th>
+                            <th class="p-3 text-left text-blue-300">Date</th>
+                            <th class="p-3 text-left text-blue-300">Time</th>
+                            <th class="p-3 text-left text-blue-300">Reason</th>
+                            <th class="p-3 text-left text-blue-300">Status</th>
+                            <th class="p-3 text-left text-blue-300">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if appointments %}
+                            {% for appt in appointments %}
+                                <tr class="border-b border-gray-700 hover:bg-gray-700 transition-colors duration-200">
+                                    <td class="p-3" data-label="Appointment ID">{{ appt.appointment_id }}</td>
+                                    <td class="p-3" data-label="Patient Name">{{ appt.patient_name }}</td>
+                                    <td class="p-3" data-label="Date">{{ appt.appointment_date }}</td>
+                                    <td class="p-3" data-label="Time">{{ appt.appointment_time }}</td>
+                                    <td class="p-3" data-label="Reason">{{ appt.reason }}</td>
+                                    <td class="p-3" data-label="Status">
+                                        <span class="inline-block px-2 py-1 rounded-full text-sm font-bold
+                                            {% if appt.status == 'Confirmed' %}bg-green-900 text-green-400{% endif %}
+                                            {% if appt.status == 'Cancelled' %}bg-red-900 text-red-400{% endif %}
+                                            {% if appt.status == 'Pending' %}bg-yellow-900 text-yellow-400{% endif %}">
+                                            {{ appt.status }}
+                                        </span>
+                                    </td>
+                                    <td class="p-3" data-label="Actions">
+                                        {% if appt.status == 'Pending' %}
+                                            <form method="POST" class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                                                <input type="hidden" name="appointment_id" value="{{ appt.appointment_id }}">
+                                                <button type="submit" name="action" value="Accept" 
+                                                    class="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition duration-300">
+                                                    Accept
+                                                </button>
+                                                <button type="submit" name="action" value="Reject" 
+                                                    class="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition duration-300">
+                                                    Reject
+                                                </button>
+                                            </form>
+                                        {% elif appt.status == 'Confirmed' and appt.video_call_url %}
+                                            <a href="{{ url_for('video.join_video', unique_url=appt.video_call_url) }}" 
+                                               class="bg-purple-500 text-white px-3 py-1 rounded-md hover:bg-purple-600 transition duration-300">
+                                                Join Video Call
+                                            </a>
+                                        {% elif appt.status == 'Cancelled' %}
+                                            <span class="text-red-400 font-semibold">Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="p-3 text-center">No appointments found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            <!-- Create Prescription Section -->
+        <section id="create-prescription" class="mb-12">
+            <h3 class="text-xl font-bold text-purple-400 font-serif mb-4 fade-in">Create Prescription</h3>
+            <div class="bg-gray-800 p-6 rounded-lg shadow-xl fade-in">
+                <form method="POST" class="space-y-4">
+                    <input type="hidden" name="action" value="create_prescription">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-300 mb-2">Select Patient</label>
+                            <select name="patient_id" class="w-full p-2 bg-gray-600 border border-gray-500 rounded-lg text-gray-100 focus:outline-none focus:border-purple-500" required>
+                                <option value="">-- Select Patient --</option>
+                                {% for patient in patients %}
+                                    <option value="{{ patient.patient_id }}">{{ patient.name }} ({{ patient.patient_id }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-2">Select Medicine</label>
+                            <select name="medicine_id" class="w-full p-2 bg-gray-600 border border-gray-500 rounded-lg text-gray-100 focus:outline-none focus:border-purple-500" required>
+                                <option value="">-- Select Medicine --</option>
+                                {% for medicine in medicines %}
+                                    <option value="{{ medicine.medicine_id }}">{{ medicine.name }} ({{ medicine.brand }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-2">Dosage</label>
+                            <input type="text" name="dosage" placeholder="e.g., 500 mg twice daily" 
+                                   class="w-full p-2 bg-gray-600 border border-gray-500 rounded-lg text-gray-100 focus:outline-none focus:border-purple-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-2">Duration</label>
+                            <input type="text" name="duration" placeholder="e.g., 7 days" 
+                                   class="w-full p-2 bg-gray-600 border border-gray-500 rounded-lg text-gray-100 focus:outline-none focus:border-purple-500" required>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-gray-300 mb-2">Instructions (Optional)</label>
+                            <textarea name="instructions" placeholder="e.g., Take after meals" 
+                                      class="w-full p-2 bg-gray-600 border border-gray-500 rounded-lg text-gray-100 focus:outline-none focus:border-purple-500" rows="3"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-2">Related Appointment (Optional)</label>
+                            <select name="appointment_id" class="w-full p-2 bg-gray-600 border border-gray-500 rounded-lg text-gray-100 focus:outline-none focus:border-purple-500">
+                                <option value="">-- No Appointment --</option>
+                                {% for appt in appointments %}
+                                    {% if appt.status == 'Confirmed' %}
+                                        <option value="{{ appt.appointment_id }}">{{ appt.patient_name }} - {{ appt.appointment_date }} {{ appt.appointment_time }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 hover:shadow-[0_0_10px_rgba(147,51,234,0.5)] transition-all duration-300">
+                        Create Prescription
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Prescriptions and Pharmacy Orders Section -->
+        <section id="prescriptions" class="mb-12">
+            <h3 class="text-xl font-bold text-purple-400 font-serif mb-4 fade-in">Prescriptions and Pharmacy Orders</h3>
+            <div class="overflow-x-auto fade-in">
+                <table class="w-full bg-gray-800 shadow-xl rounded-lg responsive-table">
+                    <thead class="bg-gray-700">
+                        <tr>
+                            <th class="p-3 text-left text-blue-300">Prescription ID</th>
+                            <th class="p-3 text-left text-blue-300">Patient ID</th>
+                            <th class="p-3 text-left text-blue-300">Medicine</th>
+                            <th class="p-3 text-left text-blue-300">Dosage</th>
+                            <th class="p-3 text-left text-blue-300">Prescription Status</th>
+                            <th class="p-3 text-left text-blue-300">Order ID</th>
+                            <th class="p-3 text-left text-blue-300">Pharmacy</th>
+                            <th class="p-3 text-left text-blue-300">Order Status</th>
+                            <th class="p-3 text-left text-blue-300">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if prescriptions %}
+                            {% for pr in prescriptions %}
+                                <tr class="border-b border-gray-700 hover:bg-gray-700 transition-colors duration-200">
+                                    <td class="p-3" data-label="Prescription ID">{{ pr.prescription_id }}</td>
+                                    <td class="p-3" data-label="Patient ID">{{ pr.patient_id }}</td>
+                                    <td class="p-3" data-label="Medicine">{{ pr.medicine_name }}</td>
+                                    <td class="p-3" data-label="Dosage">{{ pr.dosage }} for {{ pr.duration }}</td>
+                                    <td class="p-3" data-label="Prescription Status">
+                                        <span class="inline-block px-2 py-1 rounded-full text-sm font-bold
+                                            {% if pr.prescription_status == 'Filled' %}bg-green-900 text-green-400{% endif %}
+                                            {% if pr.prescription_status == 'Pending' %}bg-yellow-900 text-yellow-400{% endif %}">
+                                            {{ pr.prescription_status }}
+                                        </span>
+                                    </td>
+                                    <td class="p-3" data-label="Order ID">{{ pr.pharmacy_order_id or 'N/A' }}</td>
+                                    <td class="p-3" data-label="Pharmacy">{{ pr.pharmacy_name or 'N/A' }}</td>
+                                    <td class="p-3" data-label="Order Status">
+                                        {% if pr.order_status %}
+                                            <span class="inline-block px-2 py-1 rounded-full text-sm font-bold
+                                                {% if pr.order_status == 'Delivered' %}bg-green-900 text-green-400{% endif %}
+                                                {% if pr.order_status == 'Cancelled' %}bg-red-900 text-red-400{% endif %}
+                                                {% if pr.order_status == 'Pending' %}bg-yellow-900 text-yellow-400{% endif %}
+                                                {% if pr.order_status == 'Processing' %}bg-blue-900 text-blue-400{% endif %}
+                                                {% if pr.order_status == 'Shipped' %}bg-purple-900 text-purple-400{% endif %}">
+                                                {{ pr.order_status }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-gray-500">Not Ordered</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="p-3" data-label="Amount">₹{{ pr.total_amount or 'N/A' }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="9" class="p-3 text-center">No prescriptions found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            <!-- Inside the doctor_dashboard.html -->
+<form method="POST" class="mb-4">
+    <input type="hidden" name="action" value="assign_doctor">
+    <label for="patient_id" class="block text-gray-300">Assign to Patient:</label>
+    <select name="patient_id" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100">
+        {% for patient in all_patients %}
+            <option value="{{ patient.patient_id }}">{{ patient.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="mt-2 bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600">Assign</button>
+</form>
+
+<form method="POST" class="mb-4">
+    <input type="hidden" name="action" value="create_prescription">
+    <label for="patient_id" class="block text-gray-300">Patient:</label>
+    <select name="patient_id" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100">
+        {% for patient in all_patients %}
+            <option value="{{ patient.patient_id }}">{{ patient.name }}</option>
+        {% endfor %}
+    </select>
+    <label for="medicine_id" class="block text-gray-300">Medicine:</label>
+    <select name="medicine_id" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100">
+        {% for medicine in medicines %}
+            <option value="{{ medicine.medicine_id }}">{{ medicine.name }} ({{ medicine.brand }})</option>
+        {% endfor %}
+    </select>
+    <label for="dosage" class="block text-gray-300">Dosage:</label>
+    <input type="text" name="dosage" required class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100">
+    <label for="duration" class="block text-gray-300">Duration:</label>
+    <input type="text" name="duration" required class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100">
+    <label for="instructions" class="block text-gray-300">Instructions:</label>
+    <textarea name="instructions" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100"></textarea>
+    <label for="appointment_id" class="block text-gray-300">Appointment ID (optional):</label>
+    <input type="text" name="appointment_id" class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100">
+    <button type="submit" class="mt-2 bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600">Create Prescription</button>
+</form>
+        </section>
+        </section>
+    </div>
+
+    <!-- JavaScript for Copy Functionality -->
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Decryption key copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy the decryption key.');
+            });
+        }
+    </script>
+</body>
+</html>

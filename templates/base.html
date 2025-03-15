@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Server Dashboard - {% block title %}{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex">
+    <!-- Sidebar Navigation -->
+    <div class="fixed w-64 h-full bg-gray-800 shadow-xl p-6 flex flex-col">
+        <div class="nav-links space-y-4 mt-6">
+            <a href="{{ url_for('cloud.index') }}" class="block py-2.5 px-4 text-blue-300 hover:text-purple-400 hover:bg-gray-700 rounded-lg transition-all duration-300 {% if request.endpoint == 'cloud.index' %}active{% endif %}">Home</a>
+            <a href="{{ url_for('cloud.patients_activation') }}" class="block py-2.5 px-4 text-blue-300 hover:text-purple-400 hover:bg-gray-700 rounded-lg transition-all duration-300 {% if request.endpoint == 'cloud.patients_activation' %}active{% endif %}">Patients Activation</a>
+            <a href="{{ url_for('cloud.doctors_activation') }}" class="block py-2.5 px-4 text-blue-300 hover:text-purple-400 hover:bg-gray-700 rounded-lg transition-all duration-300 {% if request.endpoint == 'cloud.doctors_activation' %}active{% endif %}">Doctors Activation</a>
+            <a href="{{ url_for('cloud.patients') }}" class="block py-2.5 px-4 text-blue-300 hover:text-purple-400 hover:bg-gray-700 rounded-lg transition-all duration-300 {% if request.endpoint == 'cloud.patients' %}active{% endif %}">Patients</a>
+            <a href="{{ url_for('cloud.doctors') }}" class="block py-2.5 px-4 text-blue-300 hover:text-purple-400 hover:bg-gray-700 rounded-lg transition-all duration-300 {% if request.endpoint == 'cloud.doctors' %}active{% endif %}">Doctors</a>
+            <a href="{{ url_for('cloud.files') }}" class="block py-2.5 px-4 text-blue-300 hover:text-purple-400 hover:bg-gray-700 rounded-lg transition-all duration-300 {% if request.endpoint == 'cloud.files' %}active{% endif %}">Files</a>
+            <a href="{{ url_for('cloud.assign_doctors') }}" class="block py-2.5 px-4 text-blue-300 hover:text-purple-400 hover:bg-gray-700 rounded-lg transition-all duration-300 {% if request.endpoint == 'cloud.assign_doctors' %}active{% endif %}">Assign Doctors</a>
+            <a href="{{ url_for('cloud.doctor_request') }}" class="block py-2.5 px-4 text-blue-300 hover:text-purple-400 hover:bg-gray-700 rounded-lg transition-all duration-300 {% if request.endpoint == 'cloud.doctor_request' %}active{% endif %}">Doctor Request</a>
+            <a href="{{ url_for('cloud.graph') }}" class="block py-2.5 px-4 text-blue-300 hover:text-purple-400 hover:bg-gray-700 rounded-lg transition-all duration-300 {% if request.endpoint == 'cloud.graph' %}active{% endif %}">Graph</a>
+        </div>
+        <a href="{{ url_for('auth.logout') }}" class="mt-auto mb-4 bg-purple-600 text-white py-2.5 px-4 rounded-lg font-semibold hover:bg-purple-700 hover:shadow-[0_0_15px_rgba(159,122,234,0.7)] transition-all duration-300 text-center">Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-6 w-full">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="p-4 mb-6 rounded-lg text-center font-medium
+                        {% if category == 'success' %} bg-green-900/80 text-green-200 border border-green-700 {% endif %}
+                        {% if category == 'info' %} bg-blue-900/80 text-blue-200 border border-blue-700 {% endif %}
+                        {% if category == 'danger' %} bg-red-900/80 text-red-200 border border-red-700 {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

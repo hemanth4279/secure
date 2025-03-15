@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes glow {
+            0% { text-shadow: 0 0 5px rgba(147, 51, 234, 0.5); }
+            50% { text-shadow: 0 0 15px rgba(147, 51, 234, 0.8), 0 0 25px rgba(147, 51, 234, 0.6); }
+            100% { text-shadow: 0 0 5px rgba(147, 51, 234, 0.5); }
+        }
+        
+        .nav-link:hover {
+            animation: glow 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
+    <nav class="bg-gray-800 p-4 flex justify-between items-center flex-wrap shadow-lg">
+        <h2 class="text-2xl font-serif text-purple-400">Patient Dashboard</h2>
+        <div class="flex space-x-4 mt-2 sm:mt-0">
+            <a href="{{ url_for('patient.upload') }}" 
+               class="nav-link text-blue-300 hover:text-purple-400 transition-colors duration-300 font-semibold">Upload Medical Data</a>
+            <a href="{{ url_for('patient.decrypt_key') }}" 
+               class="nav-link text-blue-300 hover:text-purple-400 transition-colors duration-300 font-semibold">View Medical Data</a>
+            <a href="{{ url_for('appointment.appointments') }}" 
+               class="nav-link text-blue-300 hover:text-purple-400 transition-colors duration-300 font-semibold">Appointments</a>
+            <a href="{{ url_for('pharmacy.pharmacy') }}" 
+               class="nav-link text-blue-300 hover:text-purple-400 transition-colors duration-300 font-semibold">Pharmacy</a>
+            <a href="{{ url_for('auth.logout') }}" 
+               class="nav-link text-blue-300 hover:text-purple-400 transition-colors duration-300 font-semibold">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto max-w-4xl p-6 mt-8">
+        <!-- Patient Info -->
+        <div class="bg-gray-800 p-6 rounded-lg shadow-xl mb-8">
+            <h3 class="text-2xl text-purple-400 font-serif text-center mb-6">Welcome, {{ patient.name or 'Patient' }}</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-700">
+                            <th class="p-3 border-b border-gray-600 text-blue-300">Field</th>
+                            <th class="p-3 border-b border-gray-600 text-blue-300">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="hover:bg-gray-700 transition-colors duration-200">
+                            <td class="p-3 border-b border-gray-600 font-semibold">Patient ID</td>
+                            <td class="p-3 border-b border-gray-600">{{ patient.patient_id or 'N/A' }}</td>
+                        </tr>
+                        <tr class="hover:bg-gray-700 transition-colors duration-200">
+                            <td class="p-3 border-b border-gray-600 font-semibold">Email</td>
+                            <td class="p-3 border-b border-gray-600">{{ patient.email or 'N/A' }}</td>
+                        </tr>
+                        <tr class="hover:bg-gray-700 transition-colors duration-200">
+                            <td class="p-3 border-b border-gray-600 font-semibold">Phone</td>
+                            <td class="p-3 border-b border-gray-600">{{ patient.phone or 'N/A' }}</td>
+                        </tr>
+                        <tr class="hover:bg-gray-700 transition-colors duration-200">
+                            <td class="p-3 border-b border-gray-600 font-semibold">Status</td>
+                            <td class="p-3 border-b border-gray-600">
+                                {% if patient.is_activated %}
+                                    <span class="text-green-400 font-bold">Activated</span>
+                                {% else %}
+                                    <span class="text-yellow-400 font-bold">Pending Activation</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>  
+                </table>
+            </div>
+        </div>
+
+        <!-- Prescriptions and Pharmacy Orders -->
+        <div class="bg-gray-800 p-6 rounded-lg shadow-xl">
+            <h3 class="text-xl text-purple-400 font-serif mb-4">Your Prescriptions and Orders</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-700">
+                            <th class="p-3 border-b border-gray-600 text-blue-300">Prescription ID</th>
+                            <th class="p-3 border-b border-gray-600 text-blue-300">Doctor</th>
+                            <th class="p-3 border-b border-gray-600 text-blue-300">Medicine</th>
+                            <th class="p-3 border-b border-gray-600 text-blue-300">Dosage</th>
+                            <th class="p-3 border-b border-gray-600 text-blue-300">Prescription Status</th>
+                            <th class="p-3 border-b border-gray-600 text-blue-300">Order ID</th>
+                            <th class="p-3 border-b border-gray-600 text-blue-300">Pharmacy</th>
+                            <th class="p-3 border-b border-gray-600 text-blue-300">Order Status</th>
+                            <th class="p-3 border-b border-gray-600 text-blue-300">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if prescriptions %}
+                            {% for pr in prescriptions %}
+                                <tr class="hover:bg-gray-700 transition-colors duration-200">
+                                    <td class="p-3 border-b border-gray-600">{{ pr.prescription_id }}</td>
+                                    <td class="p-3 border-b border-gray-600">{{ pr.doctor_name }}</td>
+                                    <td class="p-3 border-b border-gray-600">{{ pr.medicine_name }}</td>
+                                    <td class="p-3 border-b border-gray-600">{{ pr.dosage }} for {{ pr.duration }}</td>
+                                    <td class="p-3 border-b border-gray-600">
+                                        <span class="inline-block px-2 py-1 rounded-full text-sm font-bold
+                                            {% if pr.prescription_status == 'success' %}bg-green-900 text-green-400{% endif %}
+                                            {% if pr.prescription_status == 'Pending' %}bg-yellow-900 text-yellow-400{% endif %}">
+                                            {{ pr.prescription_status }}
+                                        </span>
+                                    </td>
+                                    <td class="p-3 border-b border-gray-600">{{ pr.pharmacy_order_id or 'N/A' }}</td>
+                                    <td class="p-3 border-b border-gray-600">{{ pr.pharmacy_name or 'N/A' }}</td>
+                                    <td class="p-3 border-b border-gray-600">
+                                        {% if pr.order_status %}
+                                            <span class="inline-block px-2 py-1 rounded-full text-sm font-bold
+                                                {% if pr.order_status == 'Delivered' %}bg-green-900 text-green-400{% endif %}
+                                                {% if pr.order_status == 'Cancelled' %}bg-red-900 text-red-400{% endif %}
+                                                {% if pr.order_status == 'Pending' %}bg-yellow-900 text-yellow-400{% endif %}
+                                                {% if pr.order_status == 'Processing' %}bg-blue-900 text-blue-400{% endif %}
+                                                {% if pr.order_status == 'Shipped' %}bg-purple-900 text-purple-400{% endif %}">
+                                                {{ pr.order_status }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-gray-500">Not Ordered</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="p-3 border-b border-gray-600">₹{{ pr.total_amount or 'N/A' }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="9" class="p-3 text-center border-b border-gray-600">No prescriptions found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

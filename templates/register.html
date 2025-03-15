@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Registration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center p-4 sm:p-6">
+    <div class="w-full max-w-lg bg-gray-800 p-8 rounded-xl shadow-2xl">
+        <h2 class="text-3xl md:text-4xl text-purple-400 font-serif text-center mb-8">Patient Registration</h2>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="p-4 mb-6 rounded-lg text-center font-medium
+                        {% if category == 'success' %} bg-green-900/80 text-green-200 border border-green-700 {% endif %}
+                        {% if category == 'warning' %} bg-yellow-900/80 text-yellow-200 border border-yellow-700 {% endif %}
+                        {% if category == 'danger' %} bg-red-900/80 text-red-200 border border-red-700 {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Registration Form -->
+        <form method="POST" action="{{ url_for('auth.register') }}" class="space-y-6">
+            <div class="grid grid-cols-1 gap-6">
+                <div>
+                    <label for="name" class="block text-blue-300 font-medium mb-2">Full Name</label>
+                    <input type="text" id="name" name="name" required 
+                           class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 
+                           focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 
+                           hover:shadow-[0_0_12px_rgba(159,122,234,0.5)] transition-all duration-300">
+                </div>
+
+                <div>
+                    <label for="phone" class="block text-blue-300 font-medium mb-2">Phone Number</label>
+                    <input type="text" id="phone" name="phone" required 
+                           class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 
+                           focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 
+                           hover:shadow-[0_0_12px_rgba(159,122,234,0.5)] transition-all duration-300">
+                </div>
+
+                <div>
+                    <label for="email" class="block text-blue-300 font-medium mb-2">Email</label>
+                    <input type="email" id="email" name="email" required 
+                           class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 
+                           focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 
+                           hover:shadow-[0_0_12px_rgba(159,122,234,0.5)] transition-all duration-300">
+                </div>
+
+                <div>
+                    <label for="dob" class="block text-blue-300 font-medium mb-2">Date of Birth</label>
+                    <input type="date" id="dob" name="dob" required 
+                           class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 
+                           focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 
+                           hover:shadow-[0_0_12px_rgba(159,122,234,0.5)] transition-all duration-300">
+                </div>
+
+                <div>
+                    <label for="password" class="block text-blue-300 font-medium mb-2">Password</label>
+                    <input type="password" id="password" name="password" required 
+                           class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 
+                           focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 
+                           hover:shadow-[0_0_12px_rgba(159,122,234,0.5)] transition-all duration-300">
+                </div>
+
+                <div>
+                    <label for="address" class="block text-blue-300 font-medium mb-2">Address</label>
+                    <textarea id="address" name="address" rows="4" required 
+                              class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 
+                              focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 
+                              hover:shadow-[0_0_12px_rgba(159,122,234,0.5)] transition-all duration-300 resize-y"></textarea>
+                </div>
+            </div>
+
+            <button type="submit" 
+                    class="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold text-lg 
+                    hover:bg-purple-700 hover:shadow-[0_0_15px_rgba(159,122,234,0.7)] transition-all duration-300 
+                    shadow-md">
+                Register
+            </button>
+        </form>
+
+        <p class="mt-6 text-center text-gray-300">
+            Already have an account? 
+            <a href="{{ url_for('auth.login') }}" 
+               class="text-blue-300 hover:text-purple-400 hover:shadow-[0_0_10px_rgba(159,122,234,0.5)] 
+                      transition-all duration-300 font-semibold">
+                Login here
+            </a>
+        </p>
+    </div>
+</body>
+</html>

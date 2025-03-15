@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Doctors</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .btn {
+            padding: 5px 10px;
+            margin: 2px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+        .btn-activate {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-deactivate {
+            background-color: #f44336;
+            color: white;
+        }
+        .btn-delete {
+            background-color: #ff5722;
+            color: white;
+        }
+        .flash {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .flash.success { background-color: #d4edda; color: #155724; }
+        .flash.danger { background-color: #f8d7da; color: #721c24; }
+        .flash.info { background-color: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h2>Manage Doctors</h2>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Doctors Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>Doctor ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Specialization</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doctor in doctors %}
+            <tr>
+                <td>{{ doctor.doctor_id }}</td>
+                <td>{{ doctor.name }}</td>
+                <td>{{ doctor.email }}</td>
+                <td>{{ doctor.phone }}</td>
+                <td>{{ doctor.specialization }}</td>
+                <td>{{ 'Activated' if doctor.is_activated == '1' else 'Deactivated' }}</td>
+                <td>
+                    <!-- Activate/Deactivate Form -->
+                    <form method="POST" action="{{ url_for('manage_doctors') }}" style="display:inline;">
+                        <input type="hidden" name="doctor_id" value="{{ doctor.doctor_id }}">
+                        <input type="hidden" name="action" value="{{ 'activate' if doctor.is_activated == '0' else 'deactivate' }}">
+                        <button type="submit" class="btn {{ 'btn-activate' if doctor.is_activated == '0' else 'btn-deactivate' }}">
+                            {{ 'Activate' if doctor.is_activated == '0' else 'Deactivate' }}
+                        </button>
+                    </form>
+
+                    <!-- Delete Form -->
+                    <form method="POST" action="{{ url_for('manage_doctors') }}" style="display:inline;">
+                        <input type="hidden" name="doctor_id" value="{{ doctor.doctor_id }}">
+                        <input type="hidden" name="action" value="delete">
+                        <button type="submit" class="btn btn-delete">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+    <a href="{{ url_for('register') }}">Add New Doctor</a>
+
+</body>
+</html>

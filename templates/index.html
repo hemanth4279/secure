@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<section class="bg-gray-800 p-6 rounded-xl shadow-xl relative overflow-hidden min-h-screen">
+    <video class="absolute top-0 left-0 w-full h-full object-cover" autoplay loop muted>
+        <source src="{{ url_for('static', filename='animation.mp4') }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <div class="absolute top-10 left-1/2 transform -translate-x-1/2 p-4">
+        <div class="bg-gray-900 bg-opacity-50 backdrop-blur-md p-6 rounded-lg text-center max-w-2xl">
+            <p id="animatedText" class="text-lg text-purple-400 leading-relaxed"></p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+    const text = "Empowering healthcare through secure and innovative technology. We enable seamless access to patient records, enhance medical collaboration, and ensure data privacy for better, faster, and smarter healthcare solutions worldwide.";
+    const textElement = document.getElementById("animatedText");
+    let index = 0;
+    function typeText() {
+        if (index < text.length) {
+            textElement.innerHTML += text.charAt(index);
+            index++;
+            setTimeout(typeText, 70);
+        }
+    }
+    window.onload = typeText;
+</script>
+{% endblock %}
